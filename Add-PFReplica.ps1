@@ -102,8 +102,15 @@ foreach($folder in $publicFolders) {
             $status = "Adding $($server.ToUpper())"
             Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
             
-            $scriptPath = Join-Path -Path $exscripts -ChildPath AddReplicaToPFRecursive.ps1
-            & "$($scriptPath)" -Server $PublicFolderServer -ServerToAdd $server -TopPublicFolder '$folderName'
+            # Fetch PF Database            
+            $database = Get-PublicFolderDatabase -server $server 
+            
+            # Add PF database to replica list
+            $pFolder.Replicas += $database.Identity
+            
+            # Set replicas
+            $pFolder | Set-PublicFolder -Server $PublicFolderServer
+
         }
         else {
             # Write-Host "$($server) already present"
