@@ -7,7 +7,7 @@
 	THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE 
 	RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
 	
-	Version 1.0, 2015-09-10
+	Version 1.1, 2015-09-15
 
     Ideas, comments and suggestions to support@granikos.eu 
  
@@ -30,7 +30,8 @@
 
     Revision History 
     -------------------------------------------------------------------------------- 
-    1.0     Initial community release 
+    1.0      Initial community release 
+    1.1      Check for public folder existence added
 	
 	.PARAMETER ServersToAdd
     String array containing the legacy public folders to add
@@ -57,7 +58,7 @@ param(
     [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage='The server name of the legacy public folder server to contact for changes')]
     [string]$PublicFolderServer,
     [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage='Name of the legacy top public folder')]
-    [string]$TopPublicFolder = "\05\Düfer\Sabine Lauster_CeBIT08"
+    [string]$TopPublicFolder = ""
 )
 
 Write-Host "Fetching public folders with TopPublicFolder: $($TopPublicFolder)"
@@ -71,67 +72,72 @@ $i = 1
 $skippedFolders = 0
 $maintainedFolders = 0
 $max = [int]$pfCount.Count
+if($PublicFolders -ne $null) {
 
-Write-Host "Public folder count: $($pfCount.Count)"
-Write-Host "Script will wait $($SecondsToPause) seconds after each public folder"
+    Write-Host "Public folder count: $($pfCount.Count)"
+    Write-Host "Script will wait $($SecondsToPause) seconds after each public folder"
 
-# Now let's iterate through the public folders
-foreach($folder in $publicFolders) {
-    $folderName = "$($folder.ParentPath)\$($folder.Name)"
-    
-    $action = "Working on: $($folderName)"
-    $status = "Fetching public folder data"
-    
-    Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
-    
-    $tmpReplicaServer = @()
-    
-    # Fetch Public Folder to work on
-    $pFolder = Get-PublicFolder $folderName
-    
-    # Fetch current replica servers
-    $tmpReplicaServers = @()
-    Foreach($replica in $pFolder.Replicas) {
-        $tmpReplicaServers += [string]$replica.Parent.Parent.Parent
-    }
-    
-    $presentCount = 0
-    
-    Foreach($server in $ServersToAdd) {
-        if($tmpReplicaServers -notcontains $server) {
-            $status = "Adding $($server.ToUpper())"
-            Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
-            
-            # Fetch PF Database            
-            $database = Get-PublicFolderDatabase -server $server 
-            
-            # Add PF database to replica list
-            $pFolder.Replicas += $database.Identity
-            
-            # Set replicas
-            $pFolder | Set-PublicFolder -Server $PublicFolderServer
-
+    # Now let's iterate through the public folders
+    foreach($folder in $publicFolders) {
+        $folderName = "$($folder.ParentPath)\$($folder.Name)"
+        
+        $action = "Working on [$($i)/$($max)]: $($folderName)"
+        $status = "Fetching public folder data"
+        
+        Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
+        
+        $tmpReplicaServer = @()
+        
+        # Fetch Public Folder to work on
+        $pFolder = Get-PublicFolder $folderName
+        
+        # Fetch current replica servers
+        $tmpReplicaServers = @()
+        Foreach($replica in $pFolder.Replicas) {
+            $tmpReplicaServers += [string]$replica.Parent.Parent.Parent
+        }
+        
+        $presentCount = 0
+        
+        Foreach($server in $ServersToAdd) {
+            if($tmpReplicaServers -notcontains $server) {
+                $status = "Adding $($server.ToUpper())"
+                Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
+                
+                # Fetch PF Database            
+                $database = Get-PublicFolderDatabase -server $server 
+                
+                # Add PF database to replica list
+                $pFolder.Replicas += $database.Identity
+                
+                # Set replicas
+                $pFolder | Set-PublicFolder -Server $PublicFolderServer             
+                
+            }
+            else {
+                # Write-Host "$($server) already present"
+                $presentCount++
+            }
+        }
+        
+        if($presentCount -eq ($ServersToAdd.GetUpperBound(0) +1)) {
+            # Write-Host "Skip waiting period"
+            $skippedFolders++
         }
         else {
-            # Write-Host "$($server) already present"
-            $presentCount++
+            $maintainedFolders++
+            $status = "Wait $($SecondsToPause) seconds"
+            Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
+            Start-Sleep -Seconds $SecondsToPause
         }
+        
+        $i++
     }
-    
-    if($presentCount -eq ($ServersToAdd.GetUpperBound(0) +1)) {
-        # Write-Host "Skip waiting period"
-        $skippedFolders++
-    }
-    else {
-        $maintainedFolders++
-        $status = "Wait $($SecondsToPause) seconds [Folder $i out of $max]"
-        Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
-        Start-Sleep -Seconds $SecondsToPause
-    }
-    
-    $i++
-}
 
-Write-Host "Public folder skipped: $($skippedFolders)"
-Write-Host "Public folders received a new replica configuration: $($maintainedFolders)"
-Write-Host "Script finished!"
+    Write-Host "Public folder skipped: $($skippedFolders)"
+    Write-Host "Public folders received a new replica configuration: $($maintainedFolders)"
+    Write-Host "Script finished!"
+} 
+else {
+    Write-Host "TopPublicFolder $($TopPublicFolder) does NOT exist."
+}
