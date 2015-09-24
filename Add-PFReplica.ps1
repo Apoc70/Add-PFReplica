@@ -7,7 +7,7 @@
 	THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE 
 	RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
 	
-	Version 1.1, 2015-09-15
+	Version 1.1, 2015-09-24
 
     Ideas, comments and suggestions to support@granikos.eu 
  
@@ -26,12 +26,13 @@
 
     .NOTES 
     Requirements 
-    - Windows Server 2008 R2 SP1, Windows Server 2012 or Windows Server 2012 R2  
+    - Windows Server 2008 R2 SP1+
+    - Exchange Server 2007, Exchange Server 2010  
 
     Revision History 
     -------------------------------------------------------------------------------- 
-    1.0      Initial community release 
-    1.1      Check for public folder existence added
+    1.0     Initial community release 
+    1.1     Fixes to run properly with Exchange 2010
 	
 	.PARAMETER ServersToAdd
     String array containing the legacy public folders to add
@@ -58,13 +59,13 @@ param(
     [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage='The server name of the legacy public folder server to contact for changes')]
     [string]$PublicFolderServer,
     [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage='Name of the legacy top public folder')]
-    [string]$TopPublicFolder = ""
+    [string]$TopPublicFolder = "\05\Düfer\Sabine Lauster_CeBIT08"
 )
 
 Write-Host "Fetching public folders with TopPublicFolder: $($TopPublicFolder)"
 
 # Fetch top public folder sub folders
-$publicFolders = Get-PublicFolder $TopPublicFolder -Recurse -ResultSize Unlimted # Change to 10 for testing
+$publicFolders = Get-PublicFolder $TopPublicFolder -Recurse -ResultSize Unlimited
 
 # Some count stuff
 $pfCount = ($publicFolders | Measure-Object)
@@ -72,6 +73,7 @@ $i = 1
 $skippedFolders = 0
 $maintainedFolders = 0
 $max = [int]$pfCount.Count
+
 if($PublicFolders -ne $null) {
 
     Write-Host "Public folder count: $($pfCount.Count)"
@@ -90,17 +92,14 @@ if($PublicFolders -ne $null) {
         
         # Fetch Public Folder to work on
         $pFolder = Get-PublicFolder $folderName
-        
-        # Fetch current replica servers
-        $tmpReplicaServers = @()
-        Foreach($replica in $pFolder.Replicas) {
-            $tmpReplicaServers += [string]$replica.Parent.Parent.Parent
-        }
-        
+       
         $presentCount = 0
         
         Foreach($server in $ServersToAdd) {
-            if($tmpReplicaServers -notcontains $server) {
+        
+            $database = Get-PublicFolderDatabase -Server $server -ErrorAction Stop
+            
+            if(!$pFolder.Replicas.Contains($database.Identity)) {
                 $status = "Adding $($server.ToUpper())"
                 Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
                 
@@ -109,9 +108,9 @@ if($PublicFolders -ne $null) {
                 
                 # Add PF database to replica list
                 $pFolder.Replicas += $database.Identity
-                
+
                 # Set replicas
-                $pFolder | Set-PublicFolder -Server $PublicFolderServer             
+                Set-PublicFolder -Server $PublicFolderServer -Identity $pFolder.Identity -Replicas $pFolder.Replicas
                 
             }
             else {
