@@ -10,6 +10,9 @@ The script waits a given timespan in seconds to let public folder hierarchy repl
 
 It is assumed that the script is being run in an Exchange 2007 or Exchange 2010 server.
 
+## Updates
+2015-09-24: Fixes to run properly with Exchange 2010
+
 ##Inputs
 ServersToAdd
 String array containing the legacy public folders to add
