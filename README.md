@@ -47,7 +47,7 @@ Find me online:
 
 * My Blog: https://www.granikos.eu/en/justcantgetenough
 * Archived Blog:	http://www.sf-tools.net/
-* Twitter:	https://twitter.com/apoc70
+* Twitter:	https://twitter.com/stensitzki
 * LinkedIn:	http://de.linkedin.com/in/thomasstensitzki
 * Github:	https://github.com/Apoc70
 
