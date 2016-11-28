@@ -59,7 +59,7 @@ param(
     [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage='The server name of the legacy public folder server to contact for changes')]
     [string]$PublicFolderServer,
     [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage='Name of the legacy top public folder')]
-    [string]$TopPublicFolder = "\05\Düfer\Sabine Lauster_CeBIT08"
+    [string]$TopPublicFolder = ""
 )
 
 Write-Host "Fetching public folders with TopPublicFolder: $($TopPublicFolder)"
