@@ -1,56 +1,56 @@
 <#
-    .SYNOPSIS
-    Add legacy public folder replicas for multiple legacy public folder servers recursively 
+.SYNOPSIS
+Add legacy public folder replicas for multiple legacy public folder servers recursively 
    
-   	Thomas Stensitzki
+Thomas Stensitzki
 	
-	THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE 
-	RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
+THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE 
+RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
 	
-	Version 1.1, 2015-09-24
+Version 1.1, 2015-09-24
 
-    Ideas, comments and suggestions to support@granikos.eu 
+Ideas, comments and suggestions to support@granikos.eu 
  
-    .LINK  
-    More information can be found at http://www.granikos.eu/en/scripts 
+.LINK  
+More information can be found at http://scripts.granikos.eu 
 	
-    .DESCRIPTION
+.DESCRIPTION
 	
-    This script adds multiple public folder servers to all public folders below a TopPublicFolder.
+This script adds multiple public folder servers to all public folders below a TopPublicFolder.
 
-    The script has been developed as part of an on-premise legacy public folder migration from Exchange 2007 to Exchange Server 2010.
+The script has been developed as part of an on-premise legacy public folder migration from Exchange 2007 to Exchange Server 2010.
 
-    The script waits a given timespan in seconds to let public folder hierarchy replication and replica backfill requests kick in.
+The script waits a given timespan in seconds to let public folder hierarchy replication and replica backfill requests kick in.
 
-    It is assumed that the script is being run in an Exchange 2007 or Exchange 2010 server.
+It is assumed that the script is being run in an Exchange 2007 or Exchange 2010 server.
 
-    .NOTES 
-    Requirements 
-    - Windows Server 2008 R2 SP1+
-    - Exchange Server 2007, Exchange Server 2010  
+.NOTES 
+Requirements 
+- Windows Server 2008 R2 SP1+
+- Exchange Server 2007, Exchange Server 2010  
 
-    Revision History 
-    -------------------------------------------------------------------------------- 
-    1.0     Initial community release 
-    1.1     Fixes to run properly with Exchange 2010
+Revision History 
+-------------------------------------------------------------------------------- 
+1.0     Initial community release 
+1.1     Fixes to run properly with Exchange 2010
 	
-	.PARAMETER ServersToAdd
-    String array containing the legacy public folders to add
+.PARAMETER ServersToAdd
+String array containing the legacy public folders to add
 
-    .PARAMETER SecondsToPause
-    Seconds to pause between each step, this should be a reasonalbe timespan (default = 240)
+.PARAMETER SecondsToPause
+Seconds to pause between each step, this should be a reasonalbe timespan (default = 240)
 
-    .PARAMETER PublicFolderServer
-    The server name of the legacy public folder server to contact for changes
+.PARAMETER PublicFolderServer
+The server name of the legacy public folder server to contact for changes
 
-    .PARAMETER TopPublicFolder
-    Name of the legacy top public folder
+.PARAMETER TopPublicFolder
+Name of the legacy top public folder
    
-    .EXAMPLE
-    Add replicas for SERVER01,SERVER02 to all sub folders of \COMMUNICATIONS\PR
-    .\Add-PFReplica.ps1 -ServersToAdd SERVER01,SERVER02 -PublicFolderServer SERVER01 -TopPublicFolder "\COMMUNICATIONS\PR"
+.EXAMPLE
+Add replicas for SERVER01,SERVER02 to all sub folders of \COMMUNICATIONS\PR
+.\Add-PFReplica.ps1 -ServersToAdd SERVER01,SERVER02 -PublicFolderServer SERVER01 -TopPublicFolder "\COMMUNICATIONS\PR"
 
-    #>
+#>
 param(    
     [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage='String array containing the legacy public folders to add')]
     [string[]]$ServersToAdd,
