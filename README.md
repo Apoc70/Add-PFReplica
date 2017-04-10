@@ -1,7 +1,7 @@
 # Add-PFReplica.ps1
 Add legacy public folder replicas for multiple legacy public folder servers recursively
 
-##Description
+## Description
 This script adds multiple public folder servers to all public folders below a TopPublicFolder.
 
 The script has been developed as part of an on-premise legacy public folder migration from Exchange 2007 to Exchange Server 2010.
@@ -13,46 +13,44 @@ It is assumed that the script is being run in an Exchange 2007 or Exchange 2010 
 ## Updates
 2015-09-24: Fixes to run properly with Exchange 2010
 
-##Inputs
-ServersToAdd
+## Parameters
+### ServersToAdd
 String array containing the legacy public folders to add
 
-SecondsToPause
+### SecondsToPause
 Seconds to pause between each step, this should be a reasonalbe timespan (default = 240)
 
-PublicFolderServer
+### PublicFolderServer
 The server name of the legacy public folder server to contact for changes
 
-TopPublicFolder
+### TopPublicFolder
 Name of the legacy top public folder
 
-##Outputs
-None
-
-##Examples
- ```
+## Examples
+```
 .\Add-PFReplica.ps1 -ServersToAdd SERVER01,SERVER02 -PublicFolderServer SERVER01 -TopPublicFolder "\COMMUNICATIONS\PR
 ```
+
 Add replicas for SERVER01,SERVER02 to all sub folders of \COMMUNICATIONS\PR
 
-##TechNet Gallery
+## TechNet Gallery
 Find the script at TechNet Gallery
 * https://gallery.technet.microsoft.com/Add-multiple-legacy-public-255848b3
 
 
-##Credits
+## Credits
 Written by: Thomas Stensitzki
 
-Find me online:
+## Social
 
-* My Blog: https://www.granikos.eu/en/justcantgetenough
-* Archived Blog:	http://www.sf-tools.net/
-* Twitter:	https://twitter.com/stensitzki
-* LinkedIn:	http://de.linkedin.com/in/thomasstensitzki
-* Github:	https://github.com/Apoc70
+* My Blog: http://JustCantGetEnough.Granikos.eu
+* Archived Blog: http://www.sf-tools.net/
+* Twitter: https://twitter.com/stensitzki
+* LinkedIn: http://de.linkedin.com/in/thomasstensitzki
+* Github: https://github.com/Apoc70
 
 For more Office 365, Cloud Security and Exchange Server stuff checkout services provided by Granikos
 
-* Blog:     http://blog.granikos.eu/
-* Website:	https://www.granikos.eu/en/
-* Twitter:	https://twitter.com/granikos_de
+* Blog: http://blog.granikos.eu/
+* Website: https://www.granikos.eu/en/
+* Twitter: https://twitter.com/granikos_de

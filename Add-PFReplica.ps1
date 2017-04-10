@@ -7,7 +7,7 @@ Thomas Stensitzki
 THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE 
 RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
 	
-Version 1.1, 2015-09-24
+Version 1.2, 2017-04-10
 
 Ideas, comments and suggestions to support@granikos.eu 
  
@@ -28,11 +28,13 @@ It is assumed that the script is being run in an Exchange 2007 or Exchange 2010 
 Requirements 
 - Windows Server 2008 R2 SP1+
 - Exchange Server 2007, Exchange Server 2010  
+- Exchange Management Shell
 
 Revision History 
 -------------------------------------------------------------------------------- 
 1.0     Initial community release 
 1.1     Fixes to run properly with Exchange 2010
+1.2     Minor PowerShell fixes, no additional functionality
 	
 .PARAMETER ServersToAdd
 String array containing the legacy public folders to add
@@ -52,17 +54,16 @@ Add replicas for SERVER01,SERVER02 to all sub folders of \COMMUNICATIONS\PR
 
 #>
 param(    
-    [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage='String array containing the legacy public folders to add')]
+    [parameter(Mandatory=$true,HelpMessage='String array containing the legacy public folders to add')]
     [string[]]$ServersToAdd,
-    [parameter(Mandatory=$false,ValueFromPipeline=$false)]
     [int]$SecondsToPause = 240,
-    [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage='The server name of the legacy public folder server to contact for changes')]
+    [parameter(Mandatory=$true,HelpMessage='The server name of the legacy public folder server to contact for changes')]
     [string]$PublicFolderServer,
-    [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage='Name of the legacy top public folder')]
-    [string]$TopPublicFolder = ""
+    [parameter(Mandatory=$true,HelpMessage='Name of the legacy top public folder')]
+    [string]$TopPublicFolder
 )
 
-Write-Host "Fetching public folders with TopPublicFolder: $($TopPublicFolder)"
+Write-Host ('Fetching public folders with TopPublicFolder: {0}' -f $TopPublicFolder)
 
 # Fetch top public folder sub folders
 $publicFolders = Get-PublicFolder $TopPublicFolder -Recurse -ResultSize Unlimited
@@ -76,14 +77,14 @@ $max = [int]$pfCount.Count
 
 if($PublicFolders -ne $null) {
 
-    Write-Host "Public folder count: $($pfCount.Count)"
-    Write-Host "Script will wait $($SecondsToPause) seconds after each public folder"
+    Write-Host ('Public folder count: {0}' -f $pfCount.Count)
+    Write-Host ('Script will wait {0} seconds after each public folder' -f $SecondsToPause)
 
     # Now let's iterate through the public folders
     foreach($folder in $publicFolders) {
-        $folderName = "$($folder.ParentPath)\$($folder.Name)"
+        $folderName = ('{0}\{1}' -f $folder.ParentPath, $folder.Name)
         
-        $action = "Working on [$($i)/$($max)]: $($folderName)"
+        $action = ('Working on [{0}/{1}]: {2}' -f $i, $max, $folderName)
         $status = "Fetching public folder data"
         
         Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
@@ -100,7 +101,7 @@ if($PublicFolders -ne $null) {
             $database = Get-PublicFolderDatabase -Server $server -ErrorAction Stop
             
             if(!$pFolder.Replicas.Contains($database.Identity)) {
-                $status = "Adding $($server.ToUpper())"
+                $status = ('Adding {0}' -f $server.ToUpper())
                 Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
                 
                 # Fetch PF Database            
@@ -125,7 +126,7 @@ if($PublicFolders -ne $null) {
         }
         else {
             $maintainedFolders++
-            $status = "Wait $($SecondsToPause) seconds"
+            $status = ('Wait {0} seconds' -f $SecondsToPause)
             Write-Progress -Activity $action -Status $status -PercentComplete(($i/$max)*100)
             Start-Sleep -Seconds $SecondsToPause
         }
@@ -133,10 +134,10 @@ if($PublicFolders -ne $null) {
         $i++
     }
 
-    Write-Host "Public folder skipped: $($skippedFolders)"
-    Write-Host "Public folders received a new replica configuration: $($maintainedFolders)"
-    Write-Host "Script finished!"
+    Write-Host ('Public folder skipped: {0}' -f $skippedFolders)
+    Write-Host ('Public folders received a new replica configuration: {0}' -f $maintainedFolders)
+    Write-Host 'Script finished!'
 } 
 else {
-    Write-Host "TopPublicFolder $($TopPublicFolder) does NOT exist."
+    Write-Host ('TopPublicFolder {0} does NOT exist.' -f $TopPublicFolder)
 }
