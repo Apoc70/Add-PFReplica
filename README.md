@@ -47,18 +47,11 @@ Add replicas for SERVER01,SERVER02 to all sub folders of \COMMUNICATIONS\PR
 THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE
 RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
 
-## TechNet Gallery
-
-Download and vote at TechNet Gallery
-
-* [https://gallery.technet.microsoft.com/Add-multiple-legacy-public-255848b3](https://gallery.technet.microsoft.com/Add-multiple-legacy-public-255848b3)
-
 ## Credits
 
 Written by: Thomas Stensitzki
 
-
-Stay connected:
+## Stay connected
 
 * My Blog: [http://justcantgetenough.granikos.eu](http://justcantgetenough.granikos.eu)
 * Twitter: [https://twitter.com/stensitzki](https://twitter.com/stensitzki)
